@@ -1,32 +1,41 @@
 /*************************************************** 
-  This is a library for our I2C LED Backpacks
+  Project name: ID620 Embedded Systems LED Project 
+  Name: Honghao Huang
+  Student ID number: 1000090458
+  Email: huanh8@student.op.ac.nz
+  
+  This is an Arduino sketch for a classic Snake game on an 8x8 LED matrix. The game is controlled with a joystick and features four LEDs and 
+  a buzzer for additional feedback. The player's goal is to guide the snake to eat a randomly placed fruit while avoiding collision with the 
+  walls and the snake's body. The game ends when the snake collides with a wall or its own body. The restart button is used to start a new game 
+  after the current one has ended.
 
+  Reference 1 : This is a library for our I2C LED Backpacks
   Designed specifically to work with the Adafruit LED Matrix backpacks 
-  ----> http://www.adafruit.com/products/872
-  ----> http://www.adafruit.com/products/871
-  ----> http://www.adafruit.com/products/870
+ 
+  Reference 2: 
+  SparkFun Inventor’s Kit
+  Circuit 2C-Simon Says
+  The Simon Says game flashes a pattern using LED lights, then the player must repeat the pattern.
+  This sketch was written by SparkFun Electronics, with lots of help from the Arduino community.
+  This code is completely free for any use.
+  View circuit diagram and instructions at: https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v41
+  Download drawings and code at: https://github.com/sparkfun/SIK-Guide-Code
+  
+  Reference 3:
+  Circuit 2A - Buzzer
+  Play notes using a buzzer connected to pin 10
+  This sketch was written by SparkFun Electronics, with lots of help from the Arduino community.
+  This code is completely free for any use.
+  View circuit diagram and instructions at: https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v41
+  Download drawings and code at: https://github.com/sparkfun/SIK-Guide-Code
+  
+  Reference 4 :Jvisch. (2013, August 23). Snake 8x8 led matrix (ada fruit). Fritzing. 
+  Download at: https://fritzing.org/projects/snake-8x8-led-matrix-ada-fruit
 
-  These displays use I2C to communicate, 2 pins are required to 
-  interface. There are multiple selectable I2C addresses. For backpacks
-  with 2 Address Select pins: 0x70, 0x71, 0x72 or 0x73. For backpacks
-  with 3 Address Select pins: 0x70 thru 0x77
-
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
-  BSD license, all text above must be included in any redistribution
  ****************************************************/
-
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include "Adafruit_LEDBackpack.h"
-// #include <avr/wdt.h> // Include the Watchdog Timer library
-// Snake on 8x8Matrix 
-// 2013-06-15 JorgVisch
-// Reference :Jvisch. (2013, August 23). Snake 8x8 led matrix (ada fruit). Fritzing. https://fritzing.org/projects/snake-8x8-led-matrix-ada-fruit
-
 
 static const uint8_t PROGMEM
   smile_bmp[] =
@@ -71,14 +80,13 @@ const int restartButtonPin = 2;
 int led[] = {3, 5, 7, 9};     //red is led[0], yellow is led[1], green is led[2], blue is led[3]
 int tones[] = {262, 330, 392, 494};   //tones to play with each button (c, e, g, b)
 
-
 // direction
 const int TOP    = 0;
 const int RIGHT  = 1;
 const int BOTTOM = 2;
 const int LEFT   = 3;
 // Snake
-const int MAX_SNAKE_LENGTH = 6;
+const int MAX_SNAKE_LENGTH = 6;// for testing purposes
 
 // Variables
 // Adafruit_8x8matrix matrix = Adafruit_8x8matrix();  // Display
@@ -89,7 +97,6 @@ int snakeLength = 1;                               // nr of parts of snake
 boolean buttonRead = false;                        // is button already read in this loop
 unsigned long prevTime = 0;                        // for gamedelay (ms)
 unsigned long delayTime = 500;                     // Game step in ms
-
 int fruitX, fruitY;
 unsigned long fruitPrevTime = 0;
 unsigned long fruitBlinkTime = 1000/5;
@@ -97,13 +104,10 @@ int fruitLed = LED_YELLOW;
 boolean isWon;
 boolean isBorderHit; 
 volatile boolean isRestart;
-
 Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();
 
 void setup() {
-
   attachInterrupt(digitalPinToInterrupt(restartButtonPin), buttonPressed, CHANGE);
-
   Serial.begin(9600);
   Serial.println("Snake is started");
   randomSeed(analogRead(0));
@@ -148,6 +152,7 @@ void loop(){
   // }
 
 }
+
 void buttonPressed()
 {
   if(digitalRead(restartButtonPin) == HIGH)
@@ -155,6 +160,7 @@ void buttonPressed()
     isRestart= true;
   }
 }
+
 void checkResetButton()
 {
   if (isRestart)
@@ -167,6 +173,7 @@ void checkResetButton()
     isRestart = false;
   }
 }
+
 void checkGameOver(){
   if(isWon&&!isRestart){
     drawSmile();
@@ -212,6 +219,7 @@ void checkButtons(){
     buttonRead = (currentDirection != direction);
   }
 }
+
 void draw(){
   matrix.clear();
   drawSnake();
@@ -241,7 +249,6 @@ boolean inPlayField(int x, int y){
 }
 
 void nextStep(){
-
   for(int i=snakeLength-1; i>0; i--){
     snakeX[i] = snakeX[i-1];
     snakeY[i] = snakeY[i-1];
@@ -319,6 +326,7 @@ void drawSmile(){
   matrix.writeDisplay();
   delay(500);
 }
+
 void drawFrown(){
   matrix.clear();
   matrix.drawBitmap(0, 0, frown_bmp, 8, 8, LED_RED);
@@ -329,23 +337,6 @@ void drawFrown(){
   matrix.writeDisplay();
   delay(500);
 }
-
-
-
-/*
-  SparkFun Inventor’s Kit
-  Circuit 2C-Simon Says
-
-  The Simon Says game flashes a pattern using LED lights, then the player must repeat the pattern.
-
-  This sketch was written by SparkFun Electronics, with lots of help from the Arduino community.
-  This code is completely free for any use.
-
-  View circuit diagram and instructions at: https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v41
-  Download drawings and code at: https://github.com/sparkfun/SIK-Guide-Code
-*/
-
-//----------FUNCTIONS------------
 
 //FLASH LED
 void flashLED (int ledNumber) {
@@ -363,6 +354,7 @@ void allLEDoff () {
   //turn the buzzer off
   noTone(buzzerPin);
 }
+
 //WIN SEQUENCE
 void winSequence() {
 
@@ -393,7 +385,6 @@ void winSequence() {
   allLEDoff();
 
   // gameStarted = false;   //reset the game so that the start sequence will play again.
-
 }
 
 //LOSE SEQUENCE
@@ -422,18 +413,6 @@ void loseSequence() {
   delay(200);
 }
 
-/*
-  SparkFun Inventor’s Kit
-  Circuit 2A - Buzzer
-
-  Play notes using a buzzer connected to pin 10
-
-  This sketch was written by SparkFun Electronics, with lots of help from the Arduino community.
-  This code is completely free for any use.
-
-  View circuit diagram and instructions at: https://learn.sparkfun.com/tutorials/sparkfun-inventors-kit-experiment-guide---v41
-  Download drawings and code at: https://github.com/sparkfun/SIK-Guide-Code
-*/
 void song()
 { 
   play('g', 2);       //ha
@@ -474,6 +453,7 @@ void song()
   //checkResetButton();
    //while (true) {checkResetButton();}     //get stuck in this loop forever so that the song only plays once}
 }
+
 void play( char note, int beats)
 {
   //turn all the LEDs on
@@ -508,5 +488,4 @@ void play( char note, int beats)
   delay(50);                  //a little delay between the notes makes the song sound more natural
   allLEDoff();
   delay(100);  
-
 }
