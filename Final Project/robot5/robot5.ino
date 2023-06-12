@@ -65,10 +65,10 @@ void loop()
     unsigned long irCode = irReceiver.decodedIRData.decodedRawData;
     Serial.println(irCode);
     if (irCode == FORWARD_CODE) {
-      // changeState(ST_FORWARD);
-        rightMotor(200);                                //drive the right wheel forward   problem here....................
-        leftMotor(200);                                 //drive the left wheel forward
-        delay(1000);   
+      changeState(ST_FORWARD);
+        // rightMotor(200);                                //drive the right wheel forward   problem here....................
+        // leftMotor(200);                                 //drive the left wheel forward
+        // delay(1000);   
 
     } else if (irCode == BACKWARD_CODE) {
       changeState(ST_BACKWARD);
