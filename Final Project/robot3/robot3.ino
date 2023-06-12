@@ -19,16 +19,12 @@ const int BIN2 = 9;
 const int PWMB = 10;
 
 int switchPin = 7;             //switch to turn the robot on and off
-// Distance variables
-const int trigPin = 6;
-const int echoPin = 5;
 
 // Robot behavior variables
 int backupTime = 100;
 int turnTime = 200;
 
-// Distance measurement variables
-float distance = 0;
+
 
 // IR receiver instance
 IRrecv irReceiver(IR_PIN);
@@ -46,8 +42,7 @@ RobotState currentState = IDLE;
 
 void setup()
 {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
+
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
   pinMode(PWMA, OUTPUT);
@@ -70,18 +65,7 @@ void loop()
     return;
   }
 
-  distance = getDistance();
-  	if (distance == 0 && currentState !=IDLE)
-    {
-      return;
-    }
 
-  if (distance < 5) {
-      Serial.print("Distance: ");
-      Serial.print(distance);
-      Serial.println(" in");
-      stopRobot();
-  } else {
     if (irReceiver.decode()) {
       unsigned long code = irReceiver.decodedIRData.decodedRawData;
       Serial.println(code);
@@ -105,7 +89,6 @@ void loop()
 
       irReceiver.resume();
     }
-  }
 
   executeState(currentState);
 
@@ -137,31 +120,26 @@ void executeState(RobotState state)
 void driveForward()
 {
   rightMotor(255);
-  leftMotor(-255);
+  leftMotor(255);
 }
 
 void driveBackward()
 {
   rightMotor(-255);
-  leftMotor(255);
-  delay(backupTime);
-  stopRobot();
-  delay(100);
-  turnRight();
-  delay(turnTime);
+  leftMotor(-255);
 }
 
 void turnLeft()
 {
-  rightMotor(100);
-  leftMotor(-100);
+  rightMotor(255);
+  leftMotor(-255);
   delay(turnTime);
 }
 
 void turnRight()
 {
-  rightMotor(-100);
-  leftMotor(100);
+  rightMotor(-255);
+  leftMotor(255);
   delay(turnTime);
 }
 
@@ -203,18 +181,3 @@ void leftMotor(int motorSpeed)
   analogWrite(PWMB, abs(motorSpeed));
 }
 
-float getDistance()
-{
-  float echoTime;
-  float calculatedDistance;
-
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  echoTime = pulseIn(echoPin, HIGH);
-
-  calculatedDistance = echoTime / 148.0;
-
-  return calculatedDistance;
-}
