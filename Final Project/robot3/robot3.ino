@@ -5,10 +5,10 @@
 #define ST_BACKWARD 3
 #define ST_TURN_LEFT 4
 #define ST_TURN_RIGHT 5
-#define ST_NONE 6
 
 // IR remote control pin
 const int IR_PIN = 4;
+IRrecv irReceiver(IR_PIN);
 
 // IR remote control codes
 const unsigned long FORWARD_CODE = 3877175040;
@@ -27,35 +27,16 @@ const int BIN2 = 9;           //control pin 2 on the motor driver for the left m
 const int BIN1 = 8;           //control pin 1 on the motor driver for the left motor
 
 int switchPin = 7;             //switch to turn the robot on and off
-// Distance variables
-const int trigPin = 6;
-const int echoPin = 5;
 
 // Robot behavior variables
 int backupTime = 100;
 int turnTime = 200;
 
-// Distance measurement variables
-float distance = 0;
 
-// IR receiver instance
-IRrecv irReceiver(IR_PIN);
 
-// Robot states
-enum RobotState {
-  IDLE,
-  FORWARD,
-  BACKWARD,
-  TURN_LEFT,
-  TURN_RIGHT
-};
-
-// RobotState currentState = IDLE;
-int currentState = ST_NONE;
+int currentState = ST_IDLE;
 void setup()
 {
-  pinMode(trigPin, OUTPUT);
-  pinMode(echoPin, INPUT);
   //set the motor control pins as outputs
   pinMode(AIN1, OUTPUT);
   pinMode(AIN2, OUTPUT);
@@ -76,79 +57,48 @@ void setup()
 void loop()
 {
   if (digitalRead(switchPin) == LOW) 
-  {  currentState = IDLE;
+  {  
       Serial.println("switch off");
     return;
   }
 
-  distance = getDistance();
-  	// if (distance == 0 && currentState !=IDLE)
-    // {
-    //   return;
-    // }
-
-  // if (distance < 5) {
-  //     Serial.print("Distance: ");
-  //     Serial.print(distance);
-  //     Serial.println(" in");
-  //     stopRobot();
-  // } else {
     if (irReceiver.decode()) {
       unsigned long code = irReceiver.decodedIRData.decodedRawData;
       Serial.println(code);
       switch (code) {
         case FORWARD_CODE:
-          currentState = ST_FORWARD;
-          break;
-        case BACKWARD_CODE:
-          currentState = ST_BACKWARD;
-          break;
-        case LEFT_CODE:
-          currentState = ST_TURN_LEFT;
-          break;
-        case RIGHT_CODE:
-          currentState = ST_TURN_RIGHT;
-          break;
-        case STOP_CODE:
-          currentState = ST_IDLE;
-          break;
-        default:
-        currentState = ST_NONE;
-        break;
+          // currentState = ST_FORWARD;
+        rightMotor(200);                                //drive the right wheel forward
+        leftMotor(200);                                 //drive the left wheel forward
+        // delay(100);            //drive the motors long enough travel the entered distance
+        // rightMotor(0);                                  //turn the right motor off
+        // leftMotor(0);    
+          //break;
+        // case BACKWARD_CODE:
+        //   currentState = ST_BACKWARD;
+        //   break;
+        // case LEFT_CODE:
+        //   currentState = ST_TURN_LEFT;
+        //   break;
+        // case RIGHT_CODE:
+        //   currentState = ST_TURN_RIGHT;
+        //   break;
+        // case STOP_CODE:
+        //   currentState = ST_IDLE;
+        //   break;
+        // default:
+        // currentState = ST_IDLE;
+        // break;
       }
 
       irReceiver.resume();
     }
-  // }
 
-  executeState(currentState);
+  //executeState(currentState);
 
   delay(50);
 }
 
-void executeState(RobotState state)
-{
-  switch (state) {
-    case ST_IDLE:
-      stopRobot();
-      break;
-    case ST_FORWARD:
-      driveForward();
-      break;
-    case ST_BACKWARD:
-      driveBackward();
-      break;
-    case ST_TURN_LEFT:
-      turnLeft();
-      break;
-    case ST_TURN_RIGHT:
-      turnRight();
-      break;
-    default:
-      // irReceiver.resume();
-      break;
-  }
-}
 
 
 void driveForward()
@@ -246,18 +196,3 @@ void leftMotor(int motorSpeed)                        //function for driving the
 }
 
 
-float getDistance()
-{
-  float echoTime;
-  float calculatedDistance;
-
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-
-  echoTime = pulseIn(echoPin, HIGH);
-
-  calculatedDistance = echoTime / 148.0;
-
-  return calculatedDistance;
-}
