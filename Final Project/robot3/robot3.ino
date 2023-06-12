@@ -23,7 +23,7 @@ int switchPin = 7;             //switch to turn the robot on and off
 // Robot behavior variables
 int backupTime = 100;
 int turnTime = 200;
-
+int SPPED = 255;
 
 
 // IR receiver instance
@@ -119,27 +119,29 @@ void executeState(RobotState state)
 
 void driveForward()
 {
-  rightMotor(255);
-  leftMotor(255);
+  rightMotor(SPPED);
+  leftMotor(SPPED);
 }
 
 void driveBackward()
 {
-  rightMotor(-255);
-  leftMotor(-255);
+  rightMotor(-SPPED);
+  leftMotor(-SPPED);
+  delay(backupTime);
+  stopRobot();
 }
 
 void turnLeft()
 {
-  rightMotor(255);
-  leftMotor(-255);
+  rightMotor(SPPED);
+  leftMotor(-SPPED);
   delay(turnTime);
 }
 
 void turnRight()
 {
-  rightMotor(-255);
-  leftMotor(255);
+  rightMotor(-SPPED);
+  leftMotor(SPPED);
   delay(turnTime);
 }
 
@@ -149,12 +151,12 @@ void stopRobot()
   leftMotor(0);
 }
 
-void rightMotor(int motorSpeed)
+void rightMotor(int motorSPPED)
 {
-  if (motorSpeed > 0) {
+  if (motorSPPED > 0) {
     digitalWrite(AIN1, HIGH);
     digitalWrite(AIN2, LOW);
-  } else if (motorSpeed < 0) {
+  } else if (motorSPPED < 0) {
     digitalWrite(AIN1, LOW);
     digitalWrite(AIN2, HIGH);
   } else {
@@ -162,15 +164,15 @@ void rightMotor(int motorSpeed)
     digitalWrite(AIN2, LOW);
   }
 
-  analogWrite(PWMA, abs(motorSpeed));
+  analogWrite(PWMA, abs(motorSPPED));
 }
 
-void leftMotor(int motorSpeed)
+void leftMotor(int motorSPPED)
 {
-  if (motorSpeed > 0) {
+  if (motorSPPED > 0) {
     digitalWrite(BIN1, HIGH);
     digitalWrite(BIN2, LOW);
-  } else if (motorSpeed < 0) {
+  } else if (motorSPPED < 0) {
     digitalWrite(BIN1, LOW);
     digitalWrite(BIN2, HIGH);
   } else {
@@ -178,6 +180,6 @@ void leftMotor(int motorSpeed)
     digitalWrite(BIN2, LOW);
   }
 
-  analogWrite(PWMB, abs(motorSpeed));
+  analogWrite(PWMB, abs(motorSPPED));
 }
 
